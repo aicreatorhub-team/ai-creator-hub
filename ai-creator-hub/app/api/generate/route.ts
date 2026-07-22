@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { generateAIResponse } from "@/lib/ai";
 
 export async function POST(request: Request) {
   try {
@@ -17,12 +18,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const result = {
-      mode,
+    const result = await generateAIResponse(
       prompt,
-      message:
-        "AI Engine is ready. Real AI model connection will be added next.",
-    };
+      mode
+    );
 
     return NextResponse.json(result);
 
