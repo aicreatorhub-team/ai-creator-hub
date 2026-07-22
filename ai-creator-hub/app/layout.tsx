@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,29 +16,45 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-black text-white min-h-screen">
+
         <nav className="border-b border-zinc-800 px-8 py-5 flex justify-between items-center">
 
-          <div className="text-xl font-bold">
+          <Link
+            href="/"
+            className="text-xl font-bold"
+          >
             AI Creator Hub
-          </div>
+          </Link>
 
           <div className="flex gap-6 text-sm text-zinc-300">
 
-            <a href="/" className="hover:text-white">
+            <Link
+              href="/"
+              className="hover:text-white"
+            >
               Home
-            </a>
+            </Link>
 
-            <a href="/tools" className="hover:text-white">
+            <Link
+              href="/tools"
+              className="hover:text-white"
+            >
               AI Tools
-            </a>
+            </Link>
 
-            <a href="/ai-assistant" className="hover:text-white">
+            <Link
+              href="/ai-assistant"
+              className="hover:text-white"
+            >
               Assistant
-            </a>
+            </Link>
 
-            <a href="/pricing" className="hover:text-white">
+            <Link
+              href="/pricing"
+              className="hover:text-white"
+            >
               Pricing
-            </a>
+            </Link>
 
           </div>
 
