@@ -14,16 +14,50 @@ export default function AIAssistantPage() {
   const [prompt, setPrompt] = useState("");
   const [selectedMode, setSelectedMode] = useState("Content Creator");
   const [result, setResult] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function generate() {
-    setResult(
-      `AI Assistant Mode: ${selectedMode}
+  async function generate() {
+    if (!prompt.trim()) {
+      setResult("Please enter a request first.");
+      return;
+    }
+
+    setLoading(true);
+    setResult("");
+
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt,
+          mode: selectedMode,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setResult(data.error || "Something went wrong.");
+        return;
+      }
+
+      setResult(
+        `Mode: ${data.mode}
 
 Your request:
-${prompt}
+${data.prompt}
 
-AI generation will be connected here.`
-    );
+${data.message}`
+      );
+
+    } catch {
+      setResult("Unable to connect to AI Engine.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -73,9 +107,10 @@ AI generation will be connected here.`
 
           <button
             onClick={generate}
-            className="mt-6 bg-white text-black px-8 py-4 rounded-xl font-bold"
+            disabled={loading}
+            className="mt-6 bg-white text-black px-8 py-4 rounded-xl font-bold disabled:opacity-50"
           >
-            Generate AI Content
+            {loading ? "Generating..." : "Generate AI Content"}
           </button>
 
         </div>
