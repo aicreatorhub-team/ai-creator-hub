@@ -21,7 +21,7 @@ export default function LoginPage() {
       return;
     }
 
-    setMessage("Login successful.");
+    window.location.href = "/ai-assistant";
   }
 
   return (
