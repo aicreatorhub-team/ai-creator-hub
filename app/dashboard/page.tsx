@@ -1,80 +1,60 @@
-export default function Dashboard() {
+import { redirect } from "next/navigation";
+import { getUser } from "@/lib/auth/getUser";
+import { getProjects } from "@/lib/supabase/projects";
+
+export default async function DashboardPage() {
+  const user = await getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const projects = await getProjects();
+
   return (
-    <main className="min-h-screen bg-black text-white px-6 py-12">
+    <main className="min-h-screen bg-black text-white px-6 py-16">
+      <section className="max-w-5xl mx-auto">
 
-      <section className="max-w-6xl mx-auto">
+        <h1 className="text-4xl font-bold mb-4">
+          AI Creator Hub Dashboard 🚀
+        </h1>
 
-        <div className="mb-12">
-          <p className="text-zinc-400 mb-3">
-            Welcome back 👋
-          </p>
+        <p className="text-zinc-400 mb-8">
+          Welcome {user.email}
+        </p>
 
-          <h1 className="text-5xl font-bold">
-            Your AI Creator Dashboard
-          </h1>
-
-          <p className="text-zinc-400 mt-4 max-w-2xl">
-            Create content, grow your audience and build your online business
-            with your AI team.
-          </p>
-        </div>
-
-
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-            <h2 className="text-xl font-bold mb-3">
-              🎬 Content Created
-            </h2>
-            <p className="text-4xl font-bold">
-              0
-            </p>
-          </div>
-
-
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-            <h2 className="text-xl font-bold mb-3">
-              🤖 AI Tools
-            </h2>
-            <p className="text-4xl font-bold">
-              12
-            </p>
-          </div>
-
-
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-            <h2 className="text-xl font-bold mb-3">
-              🚀 Growth Score
-            </h2>
-            <p className="text-4xl font-bold">
-              100%
-            </p>
-          </div>
-
-        </div>
-
-
-        <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8">
+        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
 
           <h2 className="text-2xl font-bold mb-6">
-            Create Something New
+            Your Projects
           </h2>
 
+          {projects.length === 0 ? (
+            <p className="text-zinc-400">
+              No projects yet.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {projects.map((project) => (
+                <div
+                  key={project.id}
+                  className="bg-black rounded-xl p-5"
+                >
+                  <h3 className="font-bold text-xl">
+                    {project.title}
+                  </h3>
 
-          <textarea
-            className="w-full h-32 bg-black border border-zinc-700 rounded-xl p-4 text-white"
-            placeholder="Example: Create a YouTube video strategy about AI..."
-          />
+                  <p className="text-zinc-400">
+                    {project.mode}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
 
-
-          <button className="mt-5 bg-white text-black px-8 py-3 rounded-xl font-bold">
-            Generate with AI
-          </button>
-
-        </section>
+        </div>
 
       </section>
-
     </main>
   );
 }
