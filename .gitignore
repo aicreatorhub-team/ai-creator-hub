@@ -39,3 +39,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# Local backups
+-backup/
+-BACKUP/
+-PRO-/
+app-BEFORE-*/
+app-FINAL-*/
+.backup.
+# Backup files inside project
+*/*backup
+*/*BACKUP
+*/*before
+*/*old-working
+# Development backups
+app/ai-assistant/backup.tsx
+app/ai-assistant/before.tsx
+lib/backup.ts
+lib/before.ts
+lib/old.ts
