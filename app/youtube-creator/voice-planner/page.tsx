@@ -2,94 +2,120 @@
 
 import { useState } from "react";
 
-export default function VoicePlannerPage() {
-  const [topic, setTopic] = useState("");
-  const [voicePlan, setVoicePlan] = useState("");
 
-  function generateVoicePlan() {
+export default function VoicePlannerPage() {
+
+  const [topic, setTopic] = useState("");
+  const [result, setResult] = useState("");
+  const [loading, setLoading] = useState(false);
+
+
+  async function generateVoicePlan() {
+
     if (!topic.trim()) {
-      setVoicePlan("Please enter a video topic first.");
+      setResult("Please enter a topic first.");
       return;
     }
 
-    setVoicePlan(
-`AI Voice & Narration Plan
 
-VIDEO TOPIC:
-${topic}
+    setLoading(true);
+    setResult("");
 
-VOICE STYLE:
-Professional YouTube documentary style
 
-TONE:
-- Confident
-- Clear
-- Engaging
-- Inspirational
+    try {
 
-NARRATION STRUCTURE:
+      const response = await fetch(
+        "/api/youtube/voice-planner",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            topic,
+            userId: "demo-user",
+            email: "demo@example.com",
+            deviceId: "browser",
+            accountCount: 1,
+          }),
+        }
+      );
 
-INTRO (0-10 seconds):
-Create curiosity and immediately explain why viewers should continue watching.
 
-MAIN CONTENT:
-Use a calm professional voice.
-Pause after important points.
-Emphasize key words.
+      const data = await response.json();
 
-EMOTION:
-- Excitement during discoveries
-- Confidence during explanations
-- Curiosity during future predictions
 
-VOICE SETTINGS:
-Speed: Medium
-Pitch: Natural
-Energy: High
+      if (!data.success) {
+        setResult(data.message);
+        return;
+      }
 
-AI VOICE PROMPT:
-Professional narrator voice, cinematic YouTube documentary style, clear pronunciation, engaging storytelling, modern technology channel.
 
-READY FOR:
-ElevenLabs
-AI voice generators
-Future video automation pipeline`
-    );
+      setResult(
+        JSON.stringify(data.result, null, 2)
+      );
+
+
+    } catch {
+
+      setResult(
+        "Something went wrong."
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
   }
 
+
+
   return (
+
     <main className="min-h-screen bg-black text-white p-10">
 
       <h1 className="text-4xl font-bold mb-4">
-        Voice & Narration Planner AI
+        AI Voice Planner
       </h1>
 
+
       <p className="text-zinc-400 mb-8">
-        Create professional voice-over plans for videos.
+        Create professional narration plans for your videos.
       </p>
+
 
       <input
         value={topic}
-        onChange={(e) => setTopic(e.target.value)}
+        onChange={(e)=>setTopic(e.target.value)}
         placeholder="Enter video topic..."
-        className="w-full bg-zinc-900 rounded-xl p-4 mb-5"
+        className="w-full bg-zinc-900 p-4 rounded-xl"
       />
+
 
       <button
         onClick={generateVoicePlan}
-        className="bg-white text-black px-6 py-3 rounded-xl"
+        disabled={loading}
+        className="mt-5 bg-white text-black px-6 py-3 rounded-xl"
       >
-        Generate Voice Plan
+        {loading ? "Generating..." : "Generate Voice Plan"}
       </button>
 
-      {voicePlan && (
-        <div className="mt-8 bg-zinc-900 rounded-2xl p-6">
+
+      {result && (
+
+        <div className="mt-8 bg-zinc-900 p-6 rounded-xl">
+
           <pre className="whitespace-pre-wrap">
-            {voicePlan}
+            {result}
           </pre>
+
         </div>
+
       )}
 
     </main>
+
   );
 }

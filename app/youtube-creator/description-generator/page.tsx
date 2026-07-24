@@ -5,40 +5,65 @@ import { useState } from "react";
 export default function DescriptionGeneratorPage() {
   const [topic, setTopic] = useState("");
   const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function generateDescription() {
+
+  async function generateDescription() {
+
     if (!topic.trim()) {
       setDescription("Please enter a video topic first.");
       return;
     }
 
-    setDescription(
-`YouTube Description for: ${topic}
 
-ABOUT THIS VIDEO:
-Discover everything about ${topic} and learn why this topic is becoming important.
+    setLoading(true);
+    setDescription("");
 
-In this video you will learn:
-✓ What is ${topic}
-✓ How it works
-✓ Why it matters
-✓ Future opportunities
 
-TIMESTAMPS:
-00:00 Introduction
-01:00 Understanding ${topic}
-03:00 Key benefits
-05:00 Future predictions
+    try {
 
-SEO KEYWORDS:
-${topic}, AI, technology, future, innovation, tutorial
+      const response = await fetch("/api/youtube/description", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-SUBSCRIBE:
-Subscribe to AI Creator Hub for more professional content creation tools.
+        body: JSON.stringify({
+          topic,
+          userId: "demo-user",
+          email: "demo@example.com",
+          deviceId: "browser",
+          accountCount: 1,
+          credits: 100,
+        }),
+      });
 
-#AI #Technology #Innovation`
-    );
+
+      const data = await response.json();
+
+
+      if (!data.success) {
+        setDescription(data.message);
+        return;
+      }
+
+
+      setDescription(
+        JSON.stringify(data.result, null, 2)
+      );
+
+
+    } catch {
+
+      setDescription("Something went wrong.");
+
+    } finally {
+
+      setLoading(false);
+
+    }
   }
+
 
   return (
     <main className="min-h-screen bg-black text-white p-10">
@@ -51,6 +76,7 @@ Subscribe to AI Creator Hub for more professional content creation tools.
         Create SEO optimized YouTube descriptions.
       </p>
 
+
       <input
         value={topic}
         onChange={(e) => setTopic(e.target.value)}
@@ -58,12 +84,15 @@ Subscribe to AI Creator Hub for more professional content creation tools.
         className="w-full bg-zinc-900 rounded-xl p-4 mb-5"
       />
 
+
       <button
         onClick={generateDescription}
+        disabled={loading}
         className="bg-white text-black px-6 py-3 rounded-xl"
       >
-        Generate Description
+        {loading ? "Generating..." : "Generate Description"}
       </button>
+
 
       {description && (
         <div className="mt-8 bg-zinc-900 rounded-2xl p-6">

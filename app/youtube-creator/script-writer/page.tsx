@@ -5,41 +5,65 @@ import { useState } from "react";
 export default function ScriptWriterPage() {
   const [topic, setTopic] = useState("");
   const [script, setScript] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function generateScript() {
+
+  async function generateScript() {
+
     if (!topic.trim()) {
       setScript("Please enter a video topic first.");
       return;
     }
 
-    setScript(
-`TITLE:
-The Future of ${topic}
 
-HOOK:
-Did you know that ${topic} is changing the world faster than ever?
+    setLoading(true);
+    setScript("");
 
-INTRO:
-Welcome back to AI Creator Hub. Today we explore ${topic} and discover why it matters.
 
-MAIN CONTENT:
+    try {
 
-1. What is ${topic}?
-Explain the basic concept and why people should care.
+      const response = await fetch("/api/youtube/script", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-2. Why is ${topic} important?
-Explain the benefits, opportunities and future potential.
+        body: JSON.stringify({
+          topic,
+          userId: "demo-user",
+          email: "demo@example.com",
+          deviceId: "browser",
+          accountCount: 1,
+          credits: 100,
+        }),
+      });
 
-3. How can people use ${topic}?
-Provide practical examples.
 
-CONCLUSION:
-The future of ${topic} is only beginning. Subscribe for more AI-powered content.
+      const data = await response.json();
 
-CALL TO ACTION:
-Like, subscribe and follow for more videos.`
-    );
+
+      if (!data.success) {
+        setScript(data.message);
+        return;
+      }
+
+
+      setScript(
+        JSON.stringify(data.result, null, 2)
+      );
+
+
+    } catch {
+
+      setScript("Something went wrong.");
+
+    } finally {
+
+      setLoading(false);
+
+    }
   }
+
 
   return (
     <main className="min-h-screen bg-black text-white p-10">
@@ -52,6 +76,7 @@ Like, subscribe and follow for more videos.`
         Create professional YouTube video scripts.
       </p>
 
+
       <input
         value={topic}
         onChange={(e) => setTopic(e.target.value)}
@@ -59,12 +84,15 @@ Like, subscribe and follow for more videos.`
         className="w-full bg-zinc-900 rounded-xl p-4 mb-5"
       />
 
+
       <button
         onClick={generateScript}
+        disabled={loading}
         className="bg-white text-black px-6 py-3 rounded-xl"
       >
-        Generate Script
+        {loading ? "Generating..." : "Generate Script"}
       </button>
+
 
       {script && (
         <div className="mt-8 bg-zinc-900 rounded-2xl p-6">

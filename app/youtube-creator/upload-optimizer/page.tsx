@@ -5,71 +5,49 @@ import { useState } from "react";
 export default function UploadOptimizerPage() {
   const [topic, setTopic] = useState("");
   const [checklist, setChecklist] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function generateOptimization() {
+  async function generateOptimization() {
     if (!topic.trim()) {
       setChecklist("Please enter a video topic first.");
       return;
     }
 
-    setChecklist(
-`YouTube Upload Optimizer AI
+    setLoading(true);
+    setChecklist("");
 
-VIDEO TOPIC:
-${topic}
+    try {
+      const response = await fetch("/api/youtube/upload-optimizer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          topic,
+          userId: "demo-user",
+          email: "demo@example.com",
+          deviceId: "browser",
+          accountCount: 1,
+          credits: 100,
+        }),
+      });
 
-TITLE CHECK:
-✅ Clear audience benefit
-✅ Contains main keyword
-✅ Creates curiosity
-✅ High click potential
+      const data = await response.json();
 
-DESCRIPTION OPTIMIZATION:
+      if (!data.success) {
+        setChecklist(data.message);
+        return;
+      }
 
-First 2 lines:
-Explain the value of the video immediately.
+      setChecklist(
+        JSON.stringify(data.result, null, 2)
+      );
 
-Include:
-- Main keywords
-- Related topics
-- Links
-- Call to action
-
-SEO CHECKLIST:
-
-✅ Primary keyword included
-✅ Secondary keywords added
-✅ Tags prepared
-✅ Hashtags added
-✅ Thumbnail matches title
-
-CATEGORY SUGGESTION:
-Technology / Education / How To
-
-PINNED COMMENT:
-
-"What's your opinion about ${topic}?
-Comment below and subscribe for more."
-
-UPLOAD CHECKLIST:
-
-Before publishing:
-☐ Thumbnail uploaded
-☐ Description completed
-☐ Tags added
-☐ Captions enabled
-☐ End screen added
-☐ Cards added
-☐ Community post prepared
-
-GROWTH STRATEGY:
-
-After publishing:
-- Share on Shorts
-- Create TikTok version
-- Reply to comments
-- Analyze retention`
-    );
+    } catch {
+      setChecklist("Something went wrong.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -92,9 +70,10 @@ After publishing:
 
       <button
         onClick={generateOptimization}
+        disabled={loading}
         className="bg-white text-black px-6 py-3 rounded-xl"
       >
-        Optimize Upload
+        {loading ? "Optimizing..." : "Optimize Upload"}
       </button>
 
       {checklist && (

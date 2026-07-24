@@ -1,25 +1,56 @@
 import { controlAIRequest } from "@/app/usage/ai-request-control";
 import { logUsage } from "@/app/usage/usage-log";
 import { generateYouTubeContent } from "./youtube-controller";
-
+import { getCreditBalance, deductCredits } from "@/lib/credits/transactions";
+import { AI_COSTS } from "@/app/subscription/credits";
 
 export async function handleYouTubeRequest(
   userId: string,
   email: string,
   deviceId: string,
   accountCount: number,
-  credits: number,
-  action: "IDEA" | "SCRIPT" | "SEO",
-  input: string
+  creditsOrAction: number | "IDEA" | "SCRIPT" | "SEO",
+  actionOrInput: "IDEA" | "SCRIPT" | "SEO" | string,
+  oldInput?: string
 ) {
 
-  const control = await controlAIRequest(
-    email,
-    deviceId,
-    accountCount,
-    credits,
-    "SCRIPT_WRITER"
-  );
+  const action =
+    typeof creditsOrAction === "number"
+      ? actionOrInput as "IDEA" | "SCRIPT" | "SEO"
+      : creditsOrAction;
+
+  const input =
+    oldInput ??
+    (typeof creditsOrAction === "number"
+      ? actionOrInput
+      : "");
+
+  const creditsData = await getCreditBalance(userId);
+
+  const currentCredits =
+    creditsData.total;
+
+  const actionMap = {
+    IDEA: "IDEA_GENERATOR",
+    SCRIPT: "SCRIPT_WRITER",
+    SEO: "SEO_TAGS_GENERATOR",
+  } as const;
+
+  const toolAction =
+    actionMap[action];
+
+  const cost =
+    AI_COSTS[toolAction];
+
+
+  const control =
+    await controlAIRequest(
+      email,
+      deviceId,
+      accountCount,
+      currentCredits,
+      toolAction
+    );
 
 
   if (!control.allowed) {
@@ -30,23 +61,31 @@ export async function handleYouTubeRequest(
   }
 
 
-  const result = await generateYouTubeContent(
+  const result =
+    await generateYouTubeContent(
+      userId,
+      action,
+      input
+    );
+
+
+  await deductCredits(
     userId,
-    action,
-    input
+    cost
   );
 
 
   await logUsage(
     userId,
-    action,
-    15
+    toolAction,
+    cost
   );
 
 
   return {
     success: true,
     result,
-    remainingCredits: control.remainingCredits,
+    remainingCredits:
+      currentCredits - cost,
   };
 }

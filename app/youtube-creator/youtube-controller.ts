@@ -5,11 +5,10 @@ export type YouTubeAction =
   | "SCRIPT"
   | "SEO";
 
-
 const ACTION_PROMPTS = {
-  IDEA: "YOUTUBE_IDEA_GENERATOR",
-  SCRIPT: "YOUTUBE_SCRIPT_WRITER",
-  SEO: "YOUTUBE_SEO_OPTIMIZER",
+  IDEA: "IDEA_GENERATOR",
+  SCRIPT: "SCRIPT_WRITER",
+  SEO: "SEO_TAGS_GENERATOR",
 } as const;
 
 
@@ -25,7 +24,6 @@ export async function generateYouTubeContent(
     model: "balanced",
     input,
   });
-
 
   return result;
 }

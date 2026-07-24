@@ -5,30 +5,65 @@ import { useState } from "react";
 export default function TitleGeneratorPage() {
   const [topic, setTopic] = useState("");
   const [titles, setTitles] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function generateTitles() {
+
+  async function generateTitles() {
+
     if (!topic.trim()) {
       setTitles("Please enter a video topic first.");
       return;
     }
 
-    setTitles(
-`YouTube Title Ideas for: ${topic}
 
-🔥 Viral Style:
-1. The Truth About ${topic} Nobody Tells You
-2. I Tested ${topic} For 7 Days - Here's What Happened
-3. ${topic} Will Change Everything in 2026
+    setLoading(true);
+    setTitles("");
 
-🎯 Professional Style:
-4. Complete Guide To ${topic}
-5. How ${topic} Works And Why It Matters
 
-🚀 Curiosity Style:
-6. You Won't Believe What ${topic} Can Do
-7. The Future Of ${topic} Explained`
-    );
+    try {
+
+      const response = await fetch("/api/youtube/title", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          topic,
+          userId: "demo-user",
+          email: "demo@example.com",
+          deviceId: "browser",
+          accountCount: 1,
+          credits: 100,
+        }),
+      });
+
+
+      const data = await response.json();
+
+
+      if (!data.success) {
+        setTitles(data.message);
+        return;
+      }
+
+
+      setTitles(
+        JSON.stringify(data.result, null, 2)
+      );
+
+
+    } catch {
+
+      setTitles("Something went wrong.");
+
+    } finally {
+
+      setLoading(false);
+
+    }
   }
+
 
   return (
     <main className="min-h-screen bg-black text-white p-10">
@@ -41,6 +76,7 @@ export default function TitleGeneratorPage() {
         Create SEO friendly and high CTR YouTube titles.
       </p>
 
+
       <input
         value={topic}
         onChange={(e) => setTopic(e.target.value)}
@@ -48,12 +84,15 @@ export default function TitleGeneratorPage() {
         className="w-full bg-zinc-900 rounded-xl p-4 mb-5"
       />
 
+
       <button
         onClick={generateTitles}
+        disabled={loading}
         className="bg-white text-black px-6 py-3 rounded-xl"
       >
-        Generate Titles
+        {loading ? "Generating..." : "Generate Titles"}
       </button>
+
 
       {titles && (
         <div className="mt-8 bg-zinc-900 rounded-2xl p-6">

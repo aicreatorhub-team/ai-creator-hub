@@ -5,51 +5,56 @@ import { useState } from "react";
 export default function ThumbnailGeneratorPage() {
   const [topic, setTopic] = useState("");
   const [ideas, setIdeas] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function generateThumbnailIdeas() {
+  async function generateThumbnailIdeas() {
+
     if (!topic.trim()) {
       setIdeas("Please enter a video topic first.");
       return;
     }
 
-    setIdeas(
-`YouTube Thumbnail Ideas for: ${topic}
+    setLoading(true);
+    setIdeas("");
 
-IDEA 1:
-Main Text:
-"AI WILL CHANGE EVERYTHING"
+    try {
 
-Visual:
-A person looking at a futuristic AI screen, dramatic lighting, modern technology background.
+      const response = await fetch("/api/youtube/thumbnail", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-Colors:
-Black + Blue + Neon Glow
+        body: JSON.stringify({
+          topic,
+          userId: "demo-user",
+          email: "demo@example.com",
+          deviceId: "browser",
+          accountCount: 1,
+          credits: 100,
+        }),
+      });
 
-STYLE:
-High CTR YouTube thumbnail
+      const data = await response.json();
 
+      if (!data.success) {
+        setIdeas(data.message);
+        return;
+      }
 
-IDEA 2:
-Main Text:
-"The Future of ${topic}"
+      setIdeas(
+        JSON.stringify(data.result, null, 2)
+      );
 
-Visual:
-Before and after comparison showing transformation.
+    } catch {
 
-Colors:
-Strong contrast, bright elements, professional creator style.
+      setIdeas("Something went wrong.");
 
+    } finally {
 
-IDEA 3:
-Main Text:
-"I Tested ${topic}"
+      setLoading(false);
 
-Visual:
-Creator face reaction + large object + curiosity effect.
-
-AI IMAGE PROMPT:
-Professional YouTube thumbnail, high contrast, cinematic lighting, futuristic technology, viral YouTube style.`
-    );
+    }
   }
 
   return (
@@ -72,9 +77,10 @@ Professional YouTube thumbnail, high contrast, cinematic lighting, futuristic te
 
       <button
         onClick={generateThumbnailIdeas}
+        disabled={loading}
         className="bg-white text-black px-6 py-3 rounded-xl"
       >
-        Generate Thumbnail Ideas
+        {loading ? "Generating..." : "Generate Thumbnail Ideas"}
       </button>
 
       {ideas && (
