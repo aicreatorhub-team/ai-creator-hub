@@ -56,4 +56,5 @@ app/ai-assistant/backup.tsx
 app/ai-assistant/before.tsx
 lib/backup.ts
 lib/before.ts
-lib/old.ts
+lib/old.tsapp/dashboard/*.backup.tsx
+app/dashboard/*.v1.backup.tsx
