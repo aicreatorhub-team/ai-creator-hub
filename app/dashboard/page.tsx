@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth/getUser";
 import { getProjects } from "@/lib/supabase/projects";
 import Link from "next/link";
+import { getDashboardData } from "./dashboard-data";
 
 export default async function DashboardPage() {
   const user = await getUser();
@@ -11,6 +12,7 @@ export default async function DashboardPage() {
   }
 
   const projects = await getProjects();
+  const dashboardData = await getDashboardData(user.id);
 
   const modules = [
     {
@@ -51,6 +53,46 @@ export default async function DashboardPage() {
           Welcome {user.email}
         </p>
 
+
+        <div className="grid md:grid-cols-4 gap-6 mb-12">
+
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <p className="text-zinc-400">
+              Current Plan
+            </p>
+            <h3 className="text-2xl font-bold mt-2">
+              {dashboardData.plan}
+            </h3>
+          </div>
+
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <p className="text-zinc-400">
+              AI Credits
+            </p>
+            <h3 className="text-2xl font-bold mt-2">
+              {dashboardData.credits.used} / {dashboardData.credits.total}
+            </h3>
+          </div>
+
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <p className="text-zinc-400">
+              Projects
+            </p>
+            <h3 className="text-2xl font-bold mt-2">
+              {projects.length}
+            </h3>
+          </div>
+
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <p className="text-zinc-400">
+              AI Usage
+            </p>
+            <h3 className="text-2xl font-bold mt-2">
+              {dashboardData.aiUsage} credits
+            </h3>
+          </div>
+
+        </div>
         <h2 className="text-2xl font-bold mb-6">
           AI Modules
         </h2>
@@ -75,7 +117,47 @@ export default async function DashboardPage() {
 
         <div className="mt-12 bg-zinc-900 border border-zinc-800 rounded-3xl p-8">
 
-          <h2 className="text-2xl font-bold mb-6">
+  
+        <div className="grid md:grid-cols-4 gap-6 mb-12">
+
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <p className="text-zinc-400">
+              Current Plan
+            </p>
+            <h3 className="text-2xl font-bold mt-2">
+              {dashboardData.plan}
+            </h3>
+          </div>
+
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <p className="text-zinc-400">
+              AI Credits
+            </p>
+            <h3 className="text-2xl font-bold mt-2">
+              {dashboardData.credits.used} / {dashboardData.credits.total}
+            </h3>
+          </div>
+
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <p className="text-zinc-400">
+              Projects
+            </p>
+            <h3 className="text-2xl font-bold mt-2">
+              {projects.length}
+            </h3>
+          </div>
+
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+            <p className="text-zinc-400">
+              AI Usage
+            </p>
+            <h3 className="text-2xl font-bold mt-2">
+              {dashboardData.aiUsage} credits
+            </h3>
+          </div>
+
+        </div>
+        <h2 className="text-2xl font-bold mb-6">
             Your Projects
           </h2>
 
@@ -108,3 +190,4 @@ export default async function DashboardPage() {
     </main>
   );
 }
+
