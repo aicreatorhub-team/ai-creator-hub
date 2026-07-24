@@ -1,12 +1,10 @@
+import { createClient } from "@/lib/supabase/server";
+
 export interface UsageLog {
   userId: string;
   action: string;
   creditsUsed: number;
-  timestamp: Date;
 }
-
-
-const usageHistory: UsageLog[] = [];
 
 
 export async function logUsage(
@@ -14,27 +12,47 @@ export async function logUsage(
   action: string,
   creditsUsed: number
 ) {
+  const supabase = await createClient();
 
-  const entry: UsageLog = {
-    userId,
-    action,
-    creditsUsed,
-    timestamp: new Date(),
-  };
+  const { data, error } = await supabase
+    .from("usage_logs")
+   .insert({
+  user_id: userId,
+  action,
+  tool: action,
+  credits_used: creditsUsed,
+})
+    .select()
+    .single();
 
 
-  usageHistory.push(entry);
+  if (error) {
+    throw error;
+  }
 
 
-  return entry;
+  return data;
 }
 
 
 export async function getUsageHistory(
   userId: string
 ) {
+  const supabase = await createClient();
 
-  return usageHistory.filter(
-    (item) => item.userId === userId
-  );
+  const { data, error } = await supabase
+    .from("usage_logs")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", {
+      ascending: false,
+    });
+
+
+  if (error) {
+    throw error;
+  }
+
+
+  return data;
 }

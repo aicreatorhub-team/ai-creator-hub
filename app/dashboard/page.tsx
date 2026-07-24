@@ -61,7 +61,7 @@ export default async function DashboardPage() {
               Current Plan
             </p>
             <h3 className="text-2xl font-bold mt-2">
-              {dashboardData.plan}
+              {dashboardData.plan.name}
             </h3>
           </div>
 
@@ -125,7 +125,7 @@ export default async function DashboardPage() {
               Current Plan
             </p>
             <h3 className="text-2xl font-bold mt-2">
-              {dashboardData.plan}
+              {dashboardData.plan.name}
             </h3>
           </div>
 
