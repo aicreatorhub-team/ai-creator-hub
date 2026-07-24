@@ -58,3 +58,4 @@ lib/backup.ts
 lib/before.ts
 lib/old.tsapp/dashboard/*.backup.tsx
 app/dashboard/*.v1.backup.tsx
+app/dashboard/page.backup.tsx
